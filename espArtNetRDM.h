@@ -146,11 +146,11 @@ typedef struct _artnet_def artnet_device;
 
 
 
-class esp8266ArtNetRDM {
+class espArtNetRDM {
   public:
     // init fuctions
-    esp8266ArtNetRDM();
-    ~esp8266ArtNetRDM();
+    espArtNetRDM();
+    ~espArtNetRDM();
     
     void init(IPAddress, IPAddress, bool, char*, char*, uint16_t, uint16_t, uint8_t*);
     void init(IPAddress ip, IPAddress sub, bool dhcp, uint16_t oem, uint16_t esta, uint8_t* mac) {
