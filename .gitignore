@@ -11,6 +11,7 @@
 *.sln.docstates
 *.vcxproj
 *.vcxproj.filters
+*.vcxitems
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -33,6 +34,8 @@ bld/
 .vs/
 # Visual Micro Stuff
 __vm/
+vs-readme.txt
+
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
