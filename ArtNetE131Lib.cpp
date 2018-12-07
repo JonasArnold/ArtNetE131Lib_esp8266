@@ -15,7 +15,7 @@ If not, see http://www.gnu.org/licenses/
 
 
 
-#include "espArtNetRDM.h"
+#include "ArtNetE131Lib.h"
 
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
@@ -522,7 +522,7 @@ void espArtNetRDM::_artPoll() {
           go |= 8;						// artnet data being merged
         if (! group->ports[x]->mergeHTP)
           go |= 2;						// Merge mode LTP
-        if (group->ports[x]->e131)
+        if (group->ports[x]->protocol != protocol_type::ARTNET)
           go |= 1;						// sACN
         
         _artReplyBuffer[174 + x] |= 128;			//Port Type (128 = DMX out)
@@ -930,7 +930,7 @@ void espArtNetRDM::_artAddress(unsigned char *_artBuffer) {
     case ARTNET_AC_ARTNET_SEL_3:
       for (uint8_t x = 0; x < 4; x++) {
         if (_art->group[g]->ports[x] == 0)
-          setE131(g, x, false);
+          setProtocolType(g, x, protocol_type::ARTNET);
       }
       break;
 
@@ -940,7 +940,7 @@ void espArtNetRDM::_artAddress(unsigned char *_artBuffer) {
     case ARTNET_AC_ACN_SEL_3:
       for (uint8_t x = 0; x < 4; x++) {
         if (_art->group[g]->ports[p] == 0)
-          setE131(g, p, true);
+          setProtocolType(g, p, protocol_type::SACN_UNICAST);
       }
       break;
 
@@ -1373,32 +1373,32 @@ void espArtNetRDM::sendDMX(uint8_t g, uint8_t p, IPAddress bcAddress, uint8_t* d
 
 }
 
-void espArtNetRDM::setE131(uint8_t g, uint8_t p, bool a) {
+void espArtNetRDM::setProtocolType(uint8_t g, uint8_t p, uint8_t type) {
   if (_art == 0 || _art->numGroups <= g || _art->group[g]->ports[p] == 0)
     return;
 
-  // Increment or decrement our e131Count variable
-  if (!_art->group[g]->ports[p]->e131 && a) {
+  // Increment or decrement our e131Count variable if the universe was artnet before and is now sACN
+  if (_art->group[g]->ports[p]->protocol == protocol_type::ARTNET && type != protocol_type::ARTNET) {
     e131Count+=1;
 
     // Clear the DMX output buffer
     _artClearDMXBuffer(_art->group[g]->ports[p]->dmxBuffer);
 
-  } else if (_art->group[g]->ports[p]->e131 && !a) {
+  }  // if it was not an sACN before and it is an ArtNet now => decrement
+  else if (_art->group[g]->ports[p]->protocol != protocol_type::ARTNET && type == protocol_type::ARTNET)
+  {
     e131Count-=1;
 
     // Clear the DMX output buffer
     _artClearDMXBuffer(_art->group[g]->ports[p]->dmxBuffer);
   }
 
-  _art->group[g]->ports[p]->e131 = a;
+  _art->group[g]->ports[p]->protocol = type;
 }
 
-bool espArtNetRDM::getE131(uint8_t g, uint8_t p) {
-  if (_art == 0 || _art->numGroups <= g || _art->group[g]->ports[p] == 0 || _art->group[g]->ports[p]->e131 == false)
-    return false;
-
-  return true;
+uint8_t espArtNetRDM::getProtocolType(uint8_t g, uint8_t p)
+{
+   return _art->group[g]->ports[p]->protocol;
 }
 
 void espArtNetRDM::setE131Uni(uint8_t g, uint8_t p, uint16_t u) {
@@ -1453,7 +1453,7 @@ void espArtNetRDM::_e131Receive(e131_packet_t* e131Buffer) {
 
       // Loop through each port
       for (int y = 0; y < 4; y++) {
-        if (group->ports[y] == 0 || group->ports[y]->portType == DMX_IN || !group->ports[y]->e131)
+        if (group->ports[y] == 0 || group->ports[y]->portType == DMX_IN || group->ports[y]->protocol == protocol_type::ARTNET)
           continue;
         
         // If this port has the correct Uni, is a later packet, and is of a valid priority -> save DMX to buffer

@@ -42,12 +42,22 @@ enum port_type {
   DMX_IN = 2
 };
 
+enum protocol_type : uint8_t   // private enum
+{
+	ARTNET = 0,
+	SACN_UNICAST = 1,
+	SACN_MULTICAST = 2
+};
+
+
 struct _port_def {
   // DMX out/in or RDM out
   uint8_t portType;
 
+  // ArtNet or sACN
+  uint8_t protocol;
+
   // sACN settings
-  bool e131;
   uint16_t e131Uni;
   uint16_t e131Sequence;
   uint8_t e131Priority;
@@ -192,9 +202,12 @@ class espArtNetRDM {
     byte* getDMX(uint8_t, uint8_t);
     uint16_t numChans(uint8_t, uint8_t);
 
-    // sACN functions
-    void setE131(uint8_t, uint8_t, bool);
-    bool getE131(uint8_t, uint8_t);
+    // protocol functions
+	// type: 0 = ARTNET, 1 = SACN_UNICAST, 2 = SACN_MULTICAST
+    void setProtocolType(uint8_t, uint8_t, uint8_t);
+	uint8_t getProtocolType(uint8_t, uint8_t);
+
+	// sACN functions
     void setE131Uni(uint8_t, uint8_t, uint16_t);
     
     // handler function for including in loop()
