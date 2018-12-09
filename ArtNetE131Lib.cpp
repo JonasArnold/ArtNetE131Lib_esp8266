@@ -512,7 +512,7 @@ void espArtNetRDM::_artPoll() {
         continue;
 
       // DMX or RDM out port
-      if (group->ports[x]->portType != DMX_IN) {
+      if (group->ports[x]->portType != SEND_DMX) {
 
         // Get values for Good Output field
         byte go = 0;
@@ -530,7 +530,7 @@ void espArtNetRDM::_artPoll() {
         _artReplyBuffer[190 + x] = group->ports[x]->portUni;  	// swOut - port address
 
       // DMX In port info
-      } else if (group->ports[x]->portType == DMX_IN) {
+      } else if (group->ports[x]->portType == SEND_DMX) {
         _artReplyBuffer[174 + x] |= 64;				// Port type (64 = DMX in)
 
         if (group->ports[x]->dmxChans != 0)
@@ -578,7 +578,7 @@ void espArtNetRDM::_artDMX(unsigned char *_artBuffer) {
 
       // Loop through each port
       for (int y = 0; y < 4; y++) {
-        if (group->ports[y] == 0 || group->ports[y]->portType == DMX_IN)
+        if (group->ports[y] == 0 || group->ports[y]->portType == SEND_DMX)
           continue;
         
         // If this port has the correct Net, Sub & Uni then save DMX to buffer
@@ -1125,7 +1125,7 @@ void espArtNetRDM::_artRDM(unsigned char *_artBuffer, uint16_t packetSize) {
       for (int y = 0; y < 4; y++) {
 
         // If the port isn't in use
-        if (group->ports[y] == 0 || group->ports[y]->portType != RDM_OUT)
+        if (group->ports[y] == 0 || group->ports[y]->portType != RECEIVE_RDM)
           continue;
 
         // Run callback
@@ -1453,7 +1453,7 @@ void espArtNetRDM::_e131Receive(e131_packet_t* e131Buffer) {
 
       // Loop through each port
       for (int y = 0; y < 4; y++) {
-        if (group->ports[y] == 0 || group->ports[y]->portType == DMX_IN || group->ports[y]->protocol == protocol_type::ARTNET)
+        if (group->ports[y] == 0 || group->ports[y]->portType == SEND_DMX || group->ports[y]->protocol == ARTNET)
           continue;
         
         // If this port has the correct Uni, is a later packet, and is of a valid priority -> save DMX to buffer

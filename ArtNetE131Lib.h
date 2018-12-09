@@ -37,9 +37,9 @@ typedef void(*artTodRequestCallBack)(uint8_t, uint8_t);
 typedef void(*artTodFlushCallBack)(uint8_t, uint8_t);
 
 enum port_type {
-	DMX_OUT = 0,   // = receive DMX from ArtNet
-	RDM_OUT = 1,   // = receive RDM from ArtNet
-	DMX_IN = 2     // = send DMX to ArtNet
+	RECEIVE_DMX = 0,   // = receive DMX from ArtNet
+	RECEIVE_RDM = 1,   // = receive RDM from ArtNet
+	SEND_DMX = 2     // = send DMX to ArtNet
 };
 
 enum protocol_type : uint8_t   // private enum
@@ -192,7 +192,7 @@ public:
 		return addPort(group, port, universe, type, true, 0);
 	};
 	uint8_t addPort(byte group, byte port, byte universe) {
-		return addPort(group, port, universe, DMX_OUT, true, 0);
+		return addPort(group, port, universe, RECEIVE_DMX, true, 0);
 	};
 
 	bool closePort(uint8_t, uint8_t);

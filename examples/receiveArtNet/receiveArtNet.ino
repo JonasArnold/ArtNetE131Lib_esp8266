@@ -67,7 +67,7 @@ void setup()
 
 	// add group and port
 	_group = myArtRdm.addGroup(netNum, subnetNum);
-	_port = myArtRdm.addPort(_group, 0, universeNum, DMX_OUT, htpMerge);  // DMX OUT = Receive DMX
+	_port = myArtRdm.addPort(_group, 0, universeNum, RECEIVE_DMX, htpMerge);  // DMX OUT = Receive DMX
 
 	// set protocol to ARTNET
 	myArtRdm.setProtocolType(_group, _port, ARTNET);
