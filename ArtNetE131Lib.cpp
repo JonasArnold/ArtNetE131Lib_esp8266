@@ -522,7 +522,7 @@ void espArtNetRDM::_artPoll() {
           go |= 8;						// artnet data being merged
         if (! group->ports[x]->mergeHTP)
           go |= 2;						// Merge mode LTP
-        if (group->ports[x]->protocol != protocol_type::ARTNET)
+        if (group->ports[x]->protocol != ARTNET)
           go |= 1;						// sACN
         
         _artReplyBuffer[174 + x] |= 128;			//Port Type (128 = DMX out)
