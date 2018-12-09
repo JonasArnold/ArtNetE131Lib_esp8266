@@ -38,8 +38,8 @@ To add a Port (Universe):
 
 `portType` can be:
 
-..* `DMX_OUT` = receive DMX from Network
-..* `DMX_IN` = send DMX to Network
+- `DMX_OUT` = receive DMX from Network
+- `DMX_IN` = send DMX to Network
 
 `htpMerge`: `true` for Highest Takes Precedence, `false` for Latest Takes Precedence.
 
@@ -51,9 +51,9 @@ To set the network protocol type:
 
 `protocolType` can be:
 
-..* `ARTNET` = ArtNet V4
-..* `sACN_UNICAST` = sACN Unicast
-..* `sACN_MULTICAST` = sACN Multicast   **(not yet implemented)**
+- `ARTNET` = ArtNet V4
+- `sACN_UNICAST` = sACN Unicast
+- `sACN_MULTICAST` = sACN Multicast   **(not yet implemented)**
 
 ```
 myArtRdm.setProtocolType(_group, _port, protocolType);  // store the return value
