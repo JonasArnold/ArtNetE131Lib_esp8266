@@ -10,11 +10,12 @@ before_install:
   
 install:
  - ln -s $PWD /usr/local/share/arduino/libraries/ArtNetE131Lib_esp8266
- - arduino --install-library "E131"
+# - arduino --install-library "E131"
 # boards manager not working on 1.6.7 - 1.6.8
  - arduino --pref "boardsmanager.additional.urls=http://arduino.esp8266.com/stable/package_esp8266com_index.json" --save-prefs
 # install lib arduino json not working in 1.6.5
 #  - arduino --install-library "ArduinoJson"
+ - git clone https://github.com/forkineye/E131.git /usr/local/share/arduino/libraries/E131
  - arduino --install-boards esp8266:esp8266
  - arduino --board esp8266:esp8266:d1_mini --save-prefs
  - arduino --pref "compiler.warning_level=all" --save-prefs
