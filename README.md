@@ -1,4 +1,6 @@
 # ArtNet V4 and sACN (E131) Library for esp8266
+[![Build Status](https://travis-ci.com/JonasArnold/ArtNetE131Lib_esp8266.svg?branch=master)](https://travis-ci.com/JonasArnold/ArtNetE131Lib_esp8266)
+
 With this library you can receive or send ArtNet V4 or sACN (E131) on an ESP8266.
 
 
