@@ -284,9 +284,10 @@ private:
 
 	uint8_t _dmxSeqID = 0;
 	uint8_t e131Count = 0;	// the number of e131 ports currently open
+#define MAX_E131_UNIVERSES 8
 
 	WiFiUDP eUDP;
-	E131 e131[];
+	E131 e131[MAX_E131_UNIVERSES];
 };
 
 

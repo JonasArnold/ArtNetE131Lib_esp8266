@@ -200,7 +200,7 @@ uint8_t espArtNetRDM::addPort(byte g, byte p, byte universe, uint8_t t, bool htp
 
 bool espArtNetRDM::closePort(uint8_t g, uint8_t p) {
 	if (_art == 0 || g >= _art->numGroups)
-		return 0;
+		return false;
 
 	group_def* group = _art->group[g];
 
@@ -220,6 +220,8 @@ bool espArtNetRDM::closePort(uint8_t g, uint8_t p) {
 	group->ports[p] = 0;
 	group->numPorts--;
 	group->ports[p] == 0;
+
+	return true;
 }
 
 void espArtNetRDM::setArtDMXCallback(artDMXCallBack callback) {
@@ -1390,9 +1392,12 @@ void espArtNetRDM::setProtocolType(uint8_t g, uint8_t p, uint8_t type) {
 	if (_art->group[g]->ports[p]->protocol == ARTNET && type != ARTNET) {
 		e131Count += 1;
 
-		// e131 begins here already. Not as artnet.
-		e131[e131Count] = E131();  // create new instance
-		e131[e131Count].begin((e131_listen_t)type, p);  // set protocol type and universe number
+		if(e131Count < MAX_E131_UNIVERSES)
+		{ 
+			// e131 begins here already. Not as artnet.
+			e131[e131Count] = E131();   // create new instance
+			e131[e131Count].begin((e131_listen_t)type, p);  // set protocol type and universe number
+		}
 
 		// Clear the DMX output buffer
 		_artClearDMXBuffer(_art->group[g]->ports[p]->dmxBuffer);
