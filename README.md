@@ -25,8 +25,8 @@ myArtRdm.init(ipAddress, subnetMask, dhcpEnabled, ArtNetOEMCode, EstaManufacture
 myArtRdm.init(ipAddress, subnetMask, dhcpEnabled, shortName, longName, ArtNetOEMCode, EstaManufacturerCode, macAddress);
 ```
 More information:
-[ArtNet OEM](https://art-net.org.uk/join-the-club/oem-code-listing/)
-[ESTA Manufacturer Code](http://tsp.esta.org/tsp/working_groups/CP/mfctrIDs.php)
+[ArtNet OEM](https://art-net.org.uk/join-the-club/oem-code-listing/),
+[ESTA Manufacturer Code](http://tsp.esta.org/tsp/working_groups/CP/mfctrIDs.php),
 [Get MAC address of ESP8266](https://techtutorialsx.com/2017/04/09/esp8266-get-mac-address/)
 
 To add a ArtNet net and subnet:
@@ -35,19 +35,29 @@ uint8_t _group = myArtRdm.addGroup(netNum, subnetNum);  // store the return valu
 ```
 
 To add a Port (Universe):
+
 ```portType``` can be:
+
 ```DMX_OUT``` = receive DMX from Network
+
 ```DMX_IN``` = send DMX to Network
+
 ```htpMerge```: ```true``` for Highest Takes Precedence, ```false``` for Latest Takes Precedence.
+
 ```
 uint8_t _port = myArtRdm.addPort(_group, portNum, universeNum, portType, htpMerge);
 ```
 
 To set the network protocol type:
+
 ```protocolType``` can be:
+
 ```ARTNET``` = ArtNet V4
+
 ```sACN_UNICAST``` = sACN Unicast
+
 ```sACN_MULTICAST``` = sACN Multicast   **(not yet implemented)**
+
 ```
 myArtRdm.setProtocolType(_group, _port, protocolType);  // store the return value
 ```
@@ -76,7 +86,8 @@ void dmxHandle(uint8_t group, uint8_t port, uint16_t numChans, bool syncEnabled)
 {
 	if(group == _group && port == _port)
 	{
-		uint8_t valueOfDmxChannel = myArtRdm.getDMX(_group, _port)[channel -1];  // -1 because buffer of dmx data starts at 0
+		// read out the value of the dmx channel (-1 because buffer of dmx data starts at 0)
+		uint8_t valueOfDmxChannel = myArtRdm.getDMX(_group, _port)[channel -1];
 	}
 }
 ```
