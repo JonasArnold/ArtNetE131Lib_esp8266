@@ -20,13 +20,12 @@ If not, see http://www.gnu.org/licenses/
 
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
+#include "E131/E131.h"
 extern "C" {
 #include "mem.h"
 }
 #include "rdmDataTypes.h"
 #include "artnet.h"
-#include "e131.h"
-
 
 typedef void(*artDMXCallBack)(uint8_t, uint8_t, uint16_t, bool);
 typedef void(*artSyncCallBack)(void);
@@ -287,7 +286,7 @@ private:
 	uint8_t e131Count = 0;	// the number of e131 ports currently open
 
 	WiFiUDP eUDP;
-	WiFiUDP fUDP;
+	E131 e131[];
 };
 
 

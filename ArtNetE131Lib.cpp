@@ -19,6 +19,7 @@ If not, see http://www.gnu.org/licenses/
 
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
+
 extern "C" {
 #include "mem.h"
 }
@@ -275,8 +276,9 @@ void espArtNetRDM::begin() {
   // Start listening for UDP packets
   eUDP.begin(ARTNET_PORT);
   eUDP.flush();
-  fUDP.begin(E131_PORT);
-  fUDP.flush();
+
+  // Start E131
+  // NO Start here. Was already startet in "setProtocolType".
   
   // Send ArtPollReply to tell everyone we're here
   artPollReply();
@@ -353,17 +355,15 @@ void espArtNetRDM::handler() {
   }
 
 
-  // e131 packet
-  packetSize = fUDP.parsePacket();
+  // foreach e131 instance: handle packets
+  for (int i = 0; i < e131Count; i++)
+  {
+	  packetSize = e131[i].parsePacket();
 
-  if(packetSize > 0) {
-
-    e131_packet_t _e131Buffer;
-
-    // Read data into buffer
-    fUDP.readBytes(_e131Buffer.raw, packetSize);
-
-    _e131Receive(&_e131Buffer);
+	  if (packetSize > 0)
+	  {
+		  _e131Receive(e131[i].packet);
+	  }
   }
 
   // Send artPollReply - the function will limit the number sent
@@ -1381,13 +1381,17 @@ void espArtNetRDM::setProtocolType(uint8_t g, uint8_t p, uint8_t type) {
   if (_art->group[g]->ports[p]->protocol == ARTNET && type != ARTNET) {
     e131Count+=1;
 
+	// e131 begins here already. Not as artnet.
+	e131[e131Count] = E131();  // create new instance
+	e131[e131Count].begin((e131_listen_t)type, p);  // set protocol type and universe number
+	
     // Clear the DMX output buffer
     _artClearDMXBuffer(_art->group[g]->ports[p]->dmxBuffer);
 
   }  // if it was not an sACN before and it is an ArtNet now => decrement
   else if (_art->group[g]->ports[p]->protocol != ARTNET && type == ARTNET)
   {
-    e131Count-=1;
+	delete &e131[e131Count];  // delete instance
 
     // Clear the DMX output buffer
     _artClearDMXBuffer(_art->group[g]->ports[p]->dmxBuffer);
@@ -1414,28 +1418,6 @@ void espArtNetRDM::_e131Receive(e131_packet_t* e131Buffer) {
   if (_art == 0 || _art->numGroups == 0 || e131Count == 0)
     return;
 
-  // Check for sACN packet errors.  Error reporting not implemented -> just dump packet
-
-  if (memcmp(e131Buffer->acn_id, ACN_ID, sizeof(e131Buffer->acn_id)))
-    //return ERROR_ACN_ID;
-    return;
-
-  if (__builtin_bswap32(e131Buffer->root_vector) != VECTOR_ROOT)
-    //return ERROR_VECTOR_ROOT;
-    return;
-
-  if (__builtin_bswap32(e131Buffer->frame_vector) != VECTOR_FRAME)
-    //return ERROR_VECTOR_FRAME;
-    return;
-
-  if (e131Buffer->dmp_vector != VECTOR_DMP)
-    //return ERROR_VECTOR_DMP;
-    return;
-
-
-  // No errors -> continue with sACN processing
-
-
   uint16_t uni = (e131Buffer->universe << 8) | ((e131Buffer->universe >> 8) & 0xFF);
   uint16_t numberOfChannels = (e131Buffer->property_value_count << 8) | ((e131Buffer->property_value_count >> 8) & 0xFF) - 1;
   uint16_t startChannel = (e131Buffer-> first_address << 8) | ((e131Buffer-> first_address >> 8) & 0xFF);
@@ -1445,7 +1427,7 @@ void espArtNetRDM::_e131Receive(e131_packet_t* e131Buffer) {
 
   group_def* group = 0;
 
-  IPAddress rIP = fUDP.remoteIP();
+  IPAddress rIP = e131[e131Buffer->universe].stats.last_clientIP;
 
   // Loop through all groups
   for (int x = 0; x < _art->numGroups; x++) {
