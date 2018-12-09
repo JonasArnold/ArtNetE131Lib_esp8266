@@ -9,6 +9,8 @@ The library was extended by utilising the [E131 Lib by forkineye](https://github
 
 ## USAGE
 
+** Note: ** The following library must be installed: [E131 by forkineye](https://github.com/forkineye/E131)
+
 Instanciate:
 ```
   espArtNetRDM myArtRdm;
