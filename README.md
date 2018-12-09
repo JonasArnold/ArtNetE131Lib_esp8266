@@ -36,13 +36,12 @@ uint8_t _group = myArtRdm.addGroup(netNum, subnetNum);  // store the return valu
 
 To add a Port (Universe):
 
-```portType``` can be:
+`portType` can be:
 
-```DMX_OUT``` = receive DMX from Network
+..* `DMX_OUT` = receive DMX from Network
+..* `DMX_IN` = send DMX to Network
 
-```DMX_IN``` = send DMX to Network
-
-```htpMerge```: ```true``` for Highest Takes Precedence, ```false``` for Latest Takes Precedence.
+`htpMerge`: `true` for Highest Takes Precedence, `false` for Latest Takes Precedence.
 
 ```
 uint8_t _port = myArtRdm.addPort(_group, portNum, universeNum, portType, htpMerge);
@@ -50,13 +49,11 @@ uint8_t _port = myArtRdm.addPort(_group, portNum, universeNum, portType, htpMerg
 
 To set the network protocol type:
 
-```protocolType``` can be:
+`protocolType` can be:
 
-```ARTNET``` = ArtNet V4
-
-```sACN_UNICAST``` = sACN Unicast
-
-```sACN_MULTICAST``` = sACN Multicast   **(not yet implemented)**
+..* `ARTNET` = ArtNet V4
+..* `sACN_UNICAST` = sACN Unicast
+..* `sACN_MULTICAST` = sACN Multicast   **(not yet implemented)**
 
 ```
 myArtRdm.setProtocolType(_group, _port, protocolType);  // store the return value
