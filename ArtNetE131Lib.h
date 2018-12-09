@@ -20,7 +20,7 @@ If not, see http://www.gnu.org/licenses/
 
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
-#include <E131/E131.h>
+#include "E131\E131.h"
 
 extern "C" {
 #include "mem.h"
