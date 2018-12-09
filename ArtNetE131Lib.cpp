@@ -1378,14 +1378,14 @@ void espArtNetRDM::setProtocolType(uint8_t g, uint8_t p, uint8_t type) {
     return;
 
   // Increment or decrement our e131Count variable if the universe was artnet before and is now sACN
-  if (_art->group[g]->ports[p]->protocol == protocol_type::ARTNET && type != protocol_type::ARTNET) {
+  if (_art->group[g]->ports[p]->protocol == ARTNET && type != ARTNET) {
     e131Count+=1;
 
     // Clear the DMX output buffer
     _artClearDMXBuffer(_art->group[g]->ports[p]->dmxBuffer);
 
   }  // if it was not an sACN before and it is an ArtNet now => decrement
-  else if (_art->group[g]->ports[p]->protocol != protocol_type::ARTNET && type == protocol_type::ARTNET)
+  else if (_art->group[g]->ports[p]->protocol != ARTNET && type == ARTNET)
   {
     e131Count-=1;
 
