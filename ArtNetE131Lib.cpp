@@ -358,18 +358,6 @@ void espArtNetRDM::handler() {
 		}
 	}
 
-
-	// foreach e131 instance: handle packets
-	for (int i = 0; i < e131Count; i++)
-	{
-		packetSize = e131[i].parsePacket();
-
-		if (packetSize > 0)
-		{
-			_e131Receive(e131[i].packet);
-		}
-	}
-
 	// Send artPollReply - the function will limit the number sent
 	_artPoll();
 
@@ -1390,14 +1378,6 @@ void espArtNetRDM::setProtocolType(uint8_t g, uint8_t p, uint8_t type) {
 
 	// Increment or decrement our e131Count variable if the universe was artnet before and is now sACN
 	if (_art->group[g]->ports[p]->protocol == ARTNET && type != ARTNET) {
-		e131Count += 1;
-
-		if(e131Count < MAX_E131_UNIVERSES)
-		{ 
-			// e131 begins here already. Not as artnet.
-			e131[e131Count] = E131();   // create new instance
-			e131[e131Count].begin((e131_listen_t)type, p);  // set protocol type and universe number
-		}
 
 		// Clear the DMX output buffer
 		_artClearDMXBuffer(_art->group[g]->ports[p]->dmxBuffer);
@@ -1405,7 +1385,6 @@ void espArtNetRDM::setProtocolType(uint8_t g, uint8_t p, uint8_t type) {
 	}  // if it was not an sACN before and it is an ArtNet now => decrement
 	else if (_art->group[g]->ports[p]->protocol != ARTNET && type == ARTNET)
 	{
-		delete &e131[e131Count];  // delete instance
 
 		// Clear the DMX output buffer
 		_artClearDMXBuffer(_art->group[g]->ports[p]->dmxBuffer);
@@ -1419,65 +1398,6 @@ uint8_t espArtNetRDM::getProtocolType(uint8_t g, uint8_t p)
 	return _art->group[g]->ports[p]->protocol;
 }
 
-void espArtNetRDM::setE131Uni(uint8_t g, uint8_t p, uint16_t u) {
-	if (_art == 0 || _art->numGroups <= g || _art->group[g]->ports[p] == 0)
-		return;
-
-	_art->group[g]->ports[p]->e131Uni = u;
-	_art->group[g]->ports[p]->e131Sequence = 0;
-	_art->group[g]->ports[p]->e131Priority = 0;
-}
-
-void espArtNetRDM::_e131Receive(e131_packet_t* e131Buffer) {
-	if (_art == 0 || _art->numGroups == 0 || e131Count == 0)
-		return;
-
-	uint16_t uni = (e131Buffer->universe << 8) | ((e131Buffer->universe >> 8) & 0xFF);
-	uint16_t numberOfChannels = (e131Buffer->property_value_count << 8) | ((e131Buffer->property_value_count >> 8) & 0xFF) - 1;
-	uint16_t startChannel = (e131Buffer->first_address << 8) | ((e131Buffer->first_address >> 8) & 0xFF);
-	uint16_t seq = e131Buffer->sequence_number;
-
-	uint8_t _e131Count = 0;
-
-	group_def* group = 0;
-
-	IPAddress rIP = e131[e131Buffer->universe].stats.last_clientIP;
-
-	// Loop through all groups
-	for (int x = 0; x < _art->numGroups; x++) {
-		group = _art->group[x];
-
-		// Loop through each port
-		for (int y = 0; y < 4; y++) {
-			if (group->ports[y] == 0 || group->ports[y]->portType == SEND_DMX || group->ports[y]->protocol == ARTNET)
-				continue;
-
-			// If this port has the correct Uni, is a later packet, and is of a valid priority -> save DMX to buffer
-			if (uni == group->ports[y]->e131Uni && seq > group->ports[y]->e131Sequence && e131Buffer->priority >= group->ports[y]->e131Priority) {
-
-				// Drop non-zero start packets
-				if (e131Buffer->property_values[0] != 0)
-					continue;
-
-				// A higher priority will override previous data - this is handled in saveDMX but we need to clear the IPs & buffer
-				if (e131Buffer->priority > group->ports[y]->e131Priority) {
-					_artClearDMXBuffer(group->ports[y]->dmxBuffer);
-					group->ports[y]->senderIP[0] = INADDR_NONE;
-					group->ports[y]->senderIP[1] = INADDR_NONE;
-				}
-
-				group->ports[y]->e131Priority = e131Buffer->priority;
-
-				_saveDMX(&e131Buffer->property_values[1], numberOfChannels, x, y, rIP, startChannel);
-			}
-
-			// If all the e131 ports are checked, then return
-			if (e131Count == ++_e131Count)
-				return;
-		}
-	}
-
-}
 
 
 

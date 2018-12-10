@@ -20,7 +20,6 @@ If not, see http://www.gnu.org/licenses/
 
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
-#include <E131.h>
 
 extern "C" {
 #include "mem.h"
@@ -281,14 +280,10 @@ private:
 	void _artRDM(unsigned char*, uint16_t);
 	void _artRDMSub(unsigned char*);
 
-	void _e131Receive(e131_packet_t*);
 
 	uint8_t _dmxSeqID = 0;
-	uint8_t e131Count = 0;	// the number of e131 ports currently open
-#define MAX_E131_UNIVERSES 8
 
 	WiFiUDP eUDP;
-	E131 e131[MAX_E131_UNIVERSES];
 };
 
 
